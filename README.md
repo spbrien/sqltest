@@ -1,5 +1,7 @@
 # SQLTest
 
+Utilities for testing the results of SQL queries in python
+
 ## Installation
 
 ```bash
