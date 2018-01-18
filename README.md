@@ -2,7 +2,7 @@
 
 ## Installation
 
-```
+```bash
 # Install Dependencies
 brew install homebrew/versions/freetds091
 pip install git+git://github.com/spbrien/sqltest.git#egg=sqltest
