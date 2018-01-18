@@ -4,6 +4,7 @@
 
 import inspect
 import pickle
+import md5
 import os.path
 from contextlib import contextmanager
 
@@ -13,11 +14,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 
-from utils import query_constructor
+from utils import query_constructor, get_hash
 
 _ROOT = os.path.abspath(os.path.dirname(__file__))
 CACHE_DIR = os.path.join(_ROOT, '.sqltest')
-CACHE_LOCATION = os.path.join(CACHE_DIR, 'models.pkl')
+
+
+def cache_location(s):
+     return os.path.join(CACHE_DIR, 'models-%s.pkl' % get_hash(s))
 
 
 @contextmanager
@@ -44,9 +48,10 @@ class SQLT():
         metadata = MetaData()
         self.session_factory = sessionmaker(bind=engine)
 
-        if os.path.isfile(CACHE_LOCATION) and not force_cache_update:
+        cache_file = cache_location(connection)
+        if os.path.isfile(cache_file) and not force_cache_update:
             print "Retrieving models from cache..."
-            with open(CACHE_LOCATION, 'rb') as input:
+            with open(cache_file, 'rb') as input:
                 metadata = pickle.load(input)
                 Base = automap_base(metadata=metadata)
                 Base.prepare()
@@ -57,7 +62,7 @@ class SQLT():
             Base.prepare()
             self.models = [i for i in Base.classes]
             print "Cacheing models..."
-            with open(CACHE_LOCATION, 'wb') as output:
+            with open(cache_file, 'wb') as output:
                 pickle.dump(metadata, output, pickle.HIGHEST_PROTOCOL)
 
     @contextmanager
