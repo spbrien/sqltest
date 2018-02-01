@@ -108,8 +108,10 @@ class SQLT():
         def apply_replacement(q, params):
             return self.checker(q, replacement_func)
 
-        def get_params(params):
+        def get_params(params, specific_func=None):
             q = query_constructor(query, params)
+            if specific_func:
+                replacement_func = specific_func
             return apply_replacement(q, params) if replacement_func else has_results(q, params)
 
         return get_params
